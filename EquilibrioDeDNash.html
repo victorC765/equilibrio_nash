@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <link rel="shortcut icon" href="https://img.icons8.com/external-smashingstocks-isometric-smashing-stocks/55/external-Dice-casino-smashingstocks-isometric-smashing-stocks.png" />
+    <title>Equilibrio de Nash</title>
+    <style>
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            margin: 0;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-out;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #game {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .player {
+            display: inline-block;
+            margin: 20px;
+        }
+        input {
+            font-size: 16px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: 1px solid #bdc3c7;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+            border-color: #3498db;
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #2980b9, #3498db);
+        }
+        #result,
+        #tableContainer {
+            margin-top: 30px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 90%;
+            width: 800px;
+        }
+        table {
+            width: 100%;
+            margin: 20px auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(95, 60, 255, 0.295);
+        }
+        th,
+        td {
+            padding: 15px;
+            border: 1px solid #ecf0f1;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: background-color 0.3s ease;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        th:hover,
+        td:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+            input,
+            button {
+                width: 100%;
+                margin: 8px 0;
+            }
+            table {
+                font-size: 14px;
+            }
+            th,
+            td {
+                padding: 8px;
+            }
+            #tableContainer {
+                overflow-x: auto;
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .error {
+        color: #e74c3c;
+        background-color: #fdecea;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        display: none; /* Oculto por defecto */
+      }
+      button:disabled {
+  background-color: #ccc; /* Color de fondo gris */
+  color: #666; /* Color del texto gris */
+  cursor: not-allowed; /* Cambia el cursor para mostrar que no se puede hacer clic */
+  opacity: 0.6; /* Hacerlo semi-transparente */
+  border: 1px solid #999; /* Borde gris */
+}
+.subuton{
+    border-radius: 40px;
+    background-color: rgb(189, 214, 253);
+   }  
+     .col{
+      width: 100%;
+      background: rgb(59,24,251);
+      background: linear-gradient(90deg, rgba(59,24,251,1) 20%, rgba(102,73,249,1) 34%, #3498db 77%);
+    }
+    footer{
+      margin-top: 20px;
+      font-size: 14px;
+      padding: 20px;
+      width: 100%;
+      background-color: #2c3e50;
+      color: #7f8c8d;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+    .lobster-regular {
+    font-family: "Lobster", sans-serif;
+    font-weight: 400;
+  font-style: normal;
+}
+
+    </style>
+</head>
+<body>
+  <div class="col">
+  <h1 class="lobster-regular">🎲 Equilibrio de Nash 🎲</h1>
+</div>
+  <p>Selecciona el tamaño del juego y agrega las estrategias y resultados</p>
+
+  <!-- Input para el tamaño de la matriz -->
+  <div id="matrix-size">
+    <label for="size">Tamaño de la matriz:</label>
+    <input
+      type="number"
+      id="size"
+      value="2"
+      min="2"
+      max="10"
+      onchange="crearTabla()"
+    />
+  </div>
+
+  <!-- Contenedor para la tabla de estrategias -->
+  <div id="tableContainer"></div>
+
+  <!-- Mensaje de error -->
+  <div id="errorMessage" class="error"></div>
+
+  <div class="button-container">
+    <button id="calculateButton" onclick="calcularEquilibrio()" disabled>
+      Calcular Equilibrio
+    </button>
+    <button onclick="llenarDatosAleatorios()">Llenar Datos Aleatorios</button>
+  </div>
+
+  <div>
+    <h3>Subir matriz en formato JSON, CSV, XML, TXT o DAT:</h3>
+    <input type="file" id="fileInput" />
+    <button  onclick="subirArchivo()">Subir Archivo</button>
+  </div>
+
+  <div id="result"></div>
+
+  <footer >
+     Creado por Cristian Martinez y Víctor Cardona
+  </footer>
+
+  <script>
+    // Crear tabla de nxn con estrategias
+    function crearTabla() {
+      const size = document.getElementById("size").value;
+      const tableContainer = document.getElementById("tableContainer");
+      tableContainer.innerHTML = ""; // Limpiar el contenedor antes de agregar la nueva tabla
+
+      const table = document.createElement("table");
+      const headerRow = document.createElement("tr");
+
+      // Crear encabezados para Jugador 1
+      for (let i = 0; i <= size; i++) {
+        const th = document.createElement("th");
+        th.textContent = i === 0 ? "Jugador 1 / Jugador 2" : `E${i}`;
+        headerRow.appendChild(th);
+      }
+      table.appendChild(headerRow);
+
+      // Crear filas para Jugador 2
+      for (let i = 1; i <= size; i++) {
+        const row = document.createElement("tr");
+        const rowHeader = document.createElement("th");
+        rowHeader.textContent = `E${i}`;
+        row.appendChild(rowHeader);
+
+        for (let j = 1; j <= size; j++) {
+          const cell = document.createElement("td");
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "a,b";
+          input.oninput = validarCampos; // Agregar validación a cada campo
+          cell.appendChild(input);
+          row.appendChild(cell);
+        }
+        table.appendChild(row);
+      }
+
+      tableContainer.appendChild(table);
+      validarCampos(); // Inicializa la validación
+    }
+
+    // Función para validar que todos los campos estén llenos y en formato correcto
+    function validarCampos() {
+      const inputs = document.querySelectorAll("table tr td input");
+      const errorMessage = document.getElementById("errorMessage");
+      const calculateButton = document.getElementById("calculateButton");
+      let valid = true;
+
+      inputs.forEach(input => {
+        const value = input.value.trim();
+        if (value === "" || !/^\d+,\d+$/.test(value)) {
+          valid = false;
+          input.style.borderColor = "#e74c3c"; // Marcar como incorrecto
+        } else {
+          input.style.borderColor = ""; // Restablecer
+        }
+      });
+
+      // Si no es válido, muestra el mensaje de error y desactiva el botón
+      if (!valid) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Por favor, asegúrate de que todos los campos estén llenos y sigan el formato 'a,b'.";
+        calculateButton.disabled = true;
+      } else {
+        // Si todos los campos son válidos, oculta el mensaje de error y habilita el botón
+        errorMessage.style.display = "none";
+        calculateButton.disabled = false;
+      }
+    }
+
+    // Calcular el equilibrio de Nash y mostrar el valor
+    function calcularEquilibrio() {
+      const size = document.getElementById("size").value;
+      const rows = document.querySelectorAll("table tr");
+      const errorMessage = document.getElementById("errorMessage");
+
+      let equilibrioEncontrado = false;
+      let resultados = [];
+      let equilibrio = null;
+
+      // Obtener los resultados de la tabla
+      for (let i = 1; i <= size; i++) {
+        const fila = rows[i].querySelectorAll("td input");
+        let filaResultados = [];
+
+        for (let j = 0; j < fila.length; j++) {
+          const valor = fila[j].value.split(",");
+          if (valor.length === 2) {
+            const [payoff1, payoff2] = valor.map(Number);
+            filaResultados.push({ payoff1, payoff2 });
+          }
+        }
+        resultados.push(filaResultados);
+      }
+
+      // Buscar si hay algún equilibrio de Nash en la matriz
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          const { payoff1, payoff2 } = resultados[i][j];
+          if (payoff1 === payoff2) {
+            equilibrioEncontrado = true;
+            equilibrio = `E${i + 1},E${
+              j + 1
+            } con valor (${payoff1}, ${payoff2})`;
+            break;
+          }
+        }
+      }
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = equilibrioEncontrado
+        ? `Se encontró un equilibrio de Nash en la posición ${equilibrio}.`
+        : "No se encontró un equilibrio de Nash en esta configuración.";
+    }
+
+    // Llenar la tabla con valores aleatorios
+    function llenarDatosAleatorios() {
+      const size = document.getElementById("size").value;
+      const rows = document.querySelectorAll("table tr");
+
+      for (let i = 1; i <= size; i++) {
+        const fila = rows[i].querySelectorAll("td input");
+
+        for (let j = 0; j < fila.length; j++) {
+          const payoff1 = Math.floor(Math.random() * 10); // Valor aleatorio entre 0 y 9
+          const payoff2 = Math.floor(Math.random() * 10);
+          fila[j].value = `${payoff1},${payoff2}`;
+        }
+      }
+
+      validarCampos(); // Validar los campos después de llenar con datos aleatorios
+    }
+
+    // Inicializar la tabla en 2x2 al cargar la página
+    window.onload = crearTabla;
+
+    function subirArchivo() {
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = ''; // Limpiar mensajes anteriores
+
+  if (file) {
+    const reader = new FileReader();
+    const extension = file.name.split(".").pop().toLowerCase();
+    
+    // Validar extensión de archivo
+    const validFormats = ["json", "csv", "xml", "txt", "dat"];
+    if (!validFormats.includes(extension)) {
+      mostrarError("Formato de archivo no soportado. Solo se admiten JSON, CSV, XML, TXT o DAT.");
+      return;
+    }
+
+    reader.onload = function (e) {
+      const content = e.target.result;
+
+      // Procesar el archivo según el tipo
+      try {
+        switch (extension) {
+          case "json":
+            let jsonData;
+            try {
+              jsonData = JSON.parse(content);
+              llenarTablaDesdeJson(jsonData);
+            } catch (error) {
+              mostrarError("El archivo JSON no tiene el formato adecuado.");
+            }
+            break;
+          case "csv":
+            if (validarCsv(content)) {
+              llenarTablaDesdeCsv(content);
+            } else {
+              mostrarError("El archivo CSV no tiene el formato adecuado.");
+            }
+            break;
+          case "xml":
+            if (validarXml(content)) {
+              llenarTablaDesdeXml(content);
+            } else {
+              mostrarError("El archivo XML no tiene el formato adecuado.");
+            }
+            break;
+          case "txt":
+            if (validarTxt(content)) {
+              llenarTablaDesdeTxt(content);
+            } else {
+              mostrarError("El archivo TXT no tiene el formato adecuado.");
+            }
+            break;
+
+            case "dat":
+            if (validarDat(content)) {
+              llenarTablaDesdeDat(content);
+            } else {
+              mostrarError("El archivo DAT no tiene el formato adecuado.");
+            }
+            break;
+
+          default:
+            mostrarError("Formato de archivo no soportado.");
+        }
+      } catch (error) {
+        mostrarError("Error al procesar el archivo: " + error.message);
+      }
+    };
+    
+    reader.readAsText(file);
+  } else {
+    mostrarError("Por favor, selecciona un archivo.");
+  }
+}
+
+// Validaciones para cada tipo de archivo
+function validarCsv(csvData) {
+  const lines = csvData.split("\n");
+  return lines.every(line => line.split(",").length > 1); // Asegura que haya al menos 2 columnas
+}
+
+function validarXml(xmlData) {
+  try {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlData, "text/xml");
+    return xmlDoc.getElementsByTagName("estrategia").length > 0;
+  } catch (error) {
+    return false;
+  }
+}
+
+function validarTxt(txtData) {
+  const lines = txtData.split("\n");
+  return lines.every(line => line.trim().split(/\s+/).length > 1); // Asegura que haya al menos 2 valores por línea
+}
+
+function validarDat(datData) {
+  const lines = datData.split("\n");
+  return lines.every(line => line.trim().split(/\s+/).length > 1); // Asegura que haya al menos 2 valores por línea
+}
+
+// Funciones para llenar la tabla según el tipo de archivo
+function llenarTablaDesdeJson(jsonData) {
+  const size = document.getElementById("size").value;
+  const rows = document.querySelectorAll("table tr");
+
+  for (let i = 0; i < size; i++) {
+    const fila = rows[i + 1].querySelectorAll("td input");
+    for (let j = 0; j < size; j++) {
+      const { payoff1, payoff2 } = jsonData[i][j];
+      fila[j].value = `${payoff1},${payoff2}`;
+    }
+  }
+}
+
+function llenarTablaDesdeCsv(csvData) {
+  const size = document.getElementById("size").value;
+  const rows = document.querySelectorAll("table tr");
+  const lines = csvData.split("\n");
+
+  for (let i = 0; i < size; i++) {
+    const fila = rows[i + 1].querySelectorAll("td input");
+    const valores = lines[i].split(",");
+    for (let j = 0; j < size; j++) {
+      fila[j].value = valores[j];
+    }
+  }
+}
+
+function llenarTablaDesdeXml(xmlData) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlData, "text/xml");
+  const size = document.getElementById("size").value;
+  const rows = document.querySelectorAll("table tr");
+
+  const estrategias = xmlDoc.getElementsByTagName("estrategia");
+  for (let i = 0; i < size; i++) {
+    const fila = rows[i + 1].querySelectorAll("td input");
+    for (let j = 0; j < size; j++) {
+      const payoff1 = estrategias[i * size + j].getAttribute("payoff1");
+      const payoff2 = estrategias[i * size + j].getAttribute("payoff2");
+      fila[j].value = `${payoff1},${payoff2}`;
+    }
+  }
+}
+
+function llenarTablaDesdeTxt(txtData) {
+  const size = document.getElementById("size").value;
+  const rows = document.querySelectorAll("table tr");
+  const lines = txtData.split("\n");
+
+  for (let i = 0; i < size; i++) {
+    const fila = rows[i + 1].querySelectorAll("td input");
+    const valores = lines[i].split(/\s+/);
+    for (let j = 0; j < size; j++) {
+      fila[j].value = valores[j];
+    }
+  }
+}
+function llenarTablaDesdeDat(datData) {
+  const size = document.getElementById("size").value;
+  const rows = document.querySelectorAll("table tr");
+  const lines = datData.split("\n");
+
+  for (let i = 0; i < size; i++) {
+    const fila = rows[i + 1].querySelectorAll("td input");
+    const valores = lines[i].split(/\s+/);
+    for (let j = 0; j < size; j++) {
+      fila[j].value = valores[j] || ""; // Manejar posibles valores faltantes
+    }
+  }
+}
+
+// Mostrar mensaje de error
+function mostrarError(mensaje) {
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = `<div style="color: red; border: 1px solid red; padding: 10px; margin-top: 20px;">${mensaje}</div>`;
+}
+window.onload = crearTabla;
+  </script>
+</body>
+</html>
